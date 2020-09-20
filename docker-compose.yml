@@ -6,7 +6,7 @@ services:
     environment:
       TZ: 'EST5EDT'
     networks:
-      - default
+      - dockprom_monitor_net
     ports:
       - "137:137/udp"
       - "138:138/udp"
@@ -19,9 +19,13 @@ services:
     stdin_open: true
     tty: true
     volumes:
-      - /mnt:/mnt:z
-      - /mnt2:/mnt2:z
-    command: '-s "Mount;/mnt" -s "Bobs Volume;/mnt2;yes;no;no;bob" -u "bob;bobspasswd" -p'
+      - /etc/passwd:/etc/passwd:ro
+      - smb_data:/mnt:rw
+    command: '-w "aurelien.maison" -s "Razor edge;/mnt;yes;no;no;aurelien;aurelien" -p'
 
 networks:
-  default:
+  dockprom_monitor-net:
+    external:
+
+volumes:
+  smb_data: {}
