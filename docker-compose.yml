@@ -6,7 +6,7 @@ services:
     environment:
       TZ: 'EST5EDT'
     networks:
-      - dockprom_monitor_net
+      - default
     ports:
       - "137:137/udp"
       - "138:138/udp"
@@ -19,13 +19,31 @@ services:
     stdin_open: true
     tty: true
     volumes:
+      - /etc/group:/etc/group:ro
       - /etc/passwd:/etc/passwd:ro
       - smb_data:/mnt:rw
+      - /run/samba:/run/samba:rw
+      - /var/lib/samba:/var/lib/samba:rw
+      - logs_samba:/var/log/samba:rw
     command: '-w "aurelien.maison" -s "Razor edge;/mnt;yes;no;no;aurelien;aurelien" -p'
+    labels:
+      org.label-schema.group: "monitoring"
+
+  autoheal:
+    restart: always
+    image: willfarrell/autoheal
+    environment:
+      - AUTOHEAL_CONTAINER_LABEL=all
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    labels:
+      org.label-schema.group: "monitoring"
 
 networks:
-  dockprom_monitor-net:
+  default:
     external:
+      name: dockprom_monitor-net
 
 volumes:
   smb_data: {}
+  logs_samba: {}
